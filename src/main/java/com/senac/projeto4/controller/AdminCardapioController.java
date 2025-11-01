@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("api/admin/cardapio") // Rota PROTEGIDA por JWT (ROLE_ADMINISTRATOR)
 public class AdminCardapioController {
