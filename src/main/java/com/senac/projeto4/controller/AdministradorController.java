@@ -36,5 +36,4 @@ public class AdministradorController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    // Você pode adicionar um GET /admin/perfil/ para testar o token depois.
 }
