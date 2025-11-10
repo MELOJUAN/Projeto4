@@ -15,10 +15,8 @@ cd Projeto4
 💻 2. Abrir o Projeto no VS Code
 code .
 
-
 Isso abrirá o projeto diretamente no Visual Studio Code.
 
-🌿 3. Criar uma Nova Branch (opcional, mas recomendado)
 # Cria e muda para uma nova branch
 git checkout -b nome-da-branch
 
