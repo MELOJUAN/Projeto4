@@ -65,11 +65,17 @@ Descreva o que foi alterado.
 Clique em “Create Pull Request”.
 
 # ⚙️ Resumo dos Principais Comandos
+
 git clone <url-do-repo>
+
 cd <nome-do-repo>
+
 git checkout -b <nome-da-branch>
+
 git add .
+
 git commit -m "mensagem do commit"
+
 git push -u origin <nome-da-branch>
 
 # 💡 Dica Extra
