@@ -23,13 +23,15 @@ public class SecurityConfiguration {
 
     // --- ENDPOINTS PÚBLICOS (Não requerem JWT) ---
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = {
-            // 1. Autenticação (Login do Administrador)
-            "/api/auth/login",
-            "/api/auth/criar-primeiro-admin", // Rota de cadastro inicial (pública)
 
-            // 2. Cardápio Público (Rota aberta para o App Mobile)
-            "/api/publico/restaurante/*", // Ex: /api/publico/restaurante/lanchonete-senac
-            "/api/publico/produtos/*",
+            // Cardapio Publico Controller
+            "api/publico/restaurante/{slug}",
+            "api/publico/categorias/{restauranteId}",
+            "api/publico/produtos/{restauranteId}",
+
+            // Pedido Controller
+            "api/pedidos/{restauranteId}",
+            "api/pedidos/admin/{restauranteId}",
 
             // 3. Swagger/OpenAPI UI
             "/v3/api-docs/**",
@@ -39,9 +41,24 @@ public class SecurityConfiguration {
 
     // --- ENDPOINTS PROTEGIDOS (Requerem JWT e Permissão) ---
 
+    public static final String [] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = {
+
+            // Adimin Pedido Controller
+            "api/admin/pedidos/{restauranteId}",
+            "api/admin/pedidos/{pedidoId}",
+
+            // Admin Cardapio Controller
+            "api/admin/cardapio/categorias/{restauranteId}",
+            "api/admin/cardapio/produtos/{restauranteId}",
+            "api/admin/cardapio/produtos/{restauranteId}/gestão"
+    };
+
     // Endpoints que só podem ser acessados por ADMINISTRADOR (Gestão de Conteúdo/Pedidos)
     public static final String [] ENDPOINTS_ADMIN = {
-            "/api/admin/**" // Rota para CRUD de Produtos, Pedidos, Temas, etc.
+
+            // Adiministrado Controller
+            "api/auth/login",
+            "api/auth/criar-primeiro-admin",
     };
 
     // NOTA: Para este MVP, as rotas de cliente (CUSTOMER) podem ser ignoradas ou públicas.
