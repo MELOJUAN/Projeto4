@@ -21,68 +21,43 @@ public class SecurityConfiguration {
     @Autowired
     private UserAuthenticationFilter userAuthenticationFilter;
 
-    // --- ENDPOINTS PÚBLICOS (Não requerem JWT) ---
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = {
-
-            // Cardapio Publico Controller
-            "api/publico/restaurante/{slug}",
-            "api/publico/categorias/{restauranteId}",
-            "api/publico/produtos/{restauranteId}",
-
-            // Pedido Controller
-            "api/pedidos/{restauranteId}",
-            "api/pedidos/admin/{restauranteId}",
-
-            // 3. Swagger/OpenAPI UI
+            "/api/auth/login",
+            "/api/auth/criar-primeiro-admin",
+            // 🔓 Swagger/OpenAPI UI
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html"
     };
 
-    // --- ENDPOINTS PROTEGIDOS (Requerem JWT e Permissão) ---
-
+    // Endpoints que requerem autenticação para serem acessados
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_REQUIRED = {
-
-            // Adimin Pedido Controller
-            "api/admin/pedidos/{restauranteId}",
-            "api/admin/pedidos/{pedidoId}",
-
-            // Admin Cardapio Controller
-            "api/admin/cardapio/categorias/{restauranteId}",
-            "api/admin/cardapio/produtos/{restauranteId}",
-            "api/admin/cardapio/produtos/{restauranteId}/gestão"
+            "/users/test"
     };
 
-    // Endpoints que só podem ser acessados por ADMINISTRADOR (Gestão de Conteúdo/Pedidos)
+    // Endpoints que só podem ser acessador por usuários com permissão de cliente
+    public static final String [] ENDPOINTS_CUSTOMER = {
+            "/users/test/customer"
+    };
+
+    // Endpoints que só podem ser acessador por usuários com permissão de administrador
     public static final String [] ENDPOINTS_ADMIN = {
-
-            // Adiministrado Controller
-            "api/auth/login",
-            "api/auth/criar-primeiro-admin",
+            "/users/test/administrator"
     };
-
-    // NOTA: Para este MVP, as rotas de cliente (CUSTOMER) podem ser ignoradas ou públicas.
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Desativa proteção CSRF (comum em APIs REST)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Não usa sessão
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-
-                        // Permite acesso irrestrito aos endpoints definidos como públicos
                         .requestMatchers(ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED).permitAll()
-
-                        // Permite acesso de OPTIONS (necessário para o Swagger/CORS)
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // Define que as rotas ADMIN requerem o papel ROLE_ADMINISTRATOR
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //adicionado para funcionamento do swagger
                         .requestMatchers(ENDPOINTS_ADMIN).hasRole("ADMINISTRATOR")
-
-                        // Todas as outras requisições devem ser negadas, a menos que definidas acima
+                        .requestMatchers(ENDPOINTS_CUSTOMER).hasRole("CUSTOMER")
+                        .requestMatchers(ENDPOINTS_WITH_AUTHENTICATION_REQUIRED).authenticated()
                         .anyRequest().denyAll()
                 )
-                // Adiciona o filtro JWT antes do filtro padrão de login (UsernamePasswordAuthenticationFilter)
                 .addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -95,6 +70,7 @@ public class SecurityConfiguration {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Usamos BCrypt para criptografar senhas
+        return new BCryptPasswordEncoder();
     }
+
 }

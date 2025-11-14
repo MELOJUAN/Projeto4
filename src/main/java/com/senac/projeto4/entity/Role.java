@@ -11,11 +11,12 @@ public class Role implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "role_id", nullable = false)
     private Integer roleId;
 
     // Mapeia o Enum RoleName como uma String na coluna 'name'
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, unique = true)
+    @Column(name = "role_name", nullable = false, unique = true)
     private RoleName name;
 
     // Construtor Vazio

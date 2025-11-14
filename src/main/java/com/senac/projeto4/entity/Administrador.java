@@ -32,7 +32,7 @@ public class Administrador {
     // Muitos para Muitos (M:N) com tabela intermediária (JOIN)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "administrador_roles", // Tabela pivot (junção)
+            name = "administrador_role", // Tabela pivot (junção)
             joinColumns = @JoinColumn(name = "administrador_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )

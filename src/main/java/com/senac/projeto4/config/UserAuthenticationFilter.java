@@ -1,7 +1,7 @@
 package com.senac.projeto4.config;
 
-import com.senac.projeto4.entity.Administrador; // Nova Entidade
-import com.senac.projeto4.repository.AdministradorRepository; // Novo Repositório
+import com.senac.projeto4.entity.Administrador;
+import com.senac.projeto4.repository.AdministradorRepository;
 import com.senac.projeto4.service.JwtTokenService;
 import com.senac.projeto4.service.UserDetailsImpl;
 import jakarta.servlet.FilterChain;
@@ -22,50 +22,44 @@ import java.util.Arrays;
 public class UserAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtTokenService jwtTokenService;
+    private JwtTokenService jwtTokenService; // Service que definimos anteriormente
 
     @Autowired
-    private AdministradorRepository administradorRepository; // Uso do novo Repositório
+    private AdministradorRepository userRepository; // Repository que definimos anteriormente
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
-        // 1. Verifica se a URL requer autenticação
+        // Verifica se o endpoint requer autenticação antes de processar a requisição
         if (checkIfEndpointIsNotPublic(request)) {
-            String token = recoveryToken(request);
-
+            String token = recoveryToken(request); // Recupera o token do cabeçalho Authorization da requisição
             if (token != null) {
-                String subject = jwtTokenService.getSubjectFromToken(token);
+                String subject = jwtTokenService.getSubjectFromToken(token); // Obtém o assunto (neste caso, o nome de usuário) do token
+                Administrador user = userRepository.findByAdministradorEmail(subject).get(); // Busca o usuário pelo email (que é o assunto do token)
+                UserDetailsImpl userDetails = new UserDetailsImpl(user); // Cria um UserDetails com o usuário encontrado
 
-                // 2. Busca o usuário pelo email (subject) no BD
-                Administrador admin = administradorRepository.findByAdministradorEmail(subject)
-                        .orElseThrow(() -> new RuntimeException("Administrador não encontrado no token.")); // Adaptação
-
-                // 3. Cria o objeto UserDetails para o Spring Security
-                UserDetailsImpl userDetails = new UserDetailsImpl(admin);
-
-                // 4. Cria o token de autenticação (sem senha)
+                // Cria um objeto de autenticação do Spring Security
                 Authentication authentication =
                         new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
 
-                // 5. Salva a autenticação no contexto
+                // Define o objeto de autenticação no contexto de segurança do Spring Security
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
-                // Caso o endpoint seja protegido, mas o token esteja ausente
                 throw new RuntimeException("O token está ausente.");
             }
         }
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request, response); // Continua o processamento da requisição
     }
 
+    // Recupera o token do cabeçalho Authorization da requisição
     private String recoveryToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+        if (authorizationHeader != null) {
             return authorizationHeader.replace("Bearer ", "");
         }
         return null;
     }
 
+    // Verifica se o endpoint requer autenticação antes de processar a requisição
     private boolean checkIfEndpointIsNotPublic(HttpServletRequest request) {
         //ajustado para funcionamento do swagger
         String requestURI = request.getRequestURI();
@@ -73,4 +67,5 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
                 requestURI.startsWith(publicEndpoint.replace("/**", "")) // suporta wildcard
         );
     }
+
 }
