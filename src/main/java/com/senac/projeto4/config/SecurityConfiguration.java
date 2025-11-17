@@ -22,6 +22,17 @@ public class SecurityConfiguration {
     private UserAuthenticationFilter userAuthenticationFilter;
 
     public static final String [] ENDPOINTS_WITH_AUTHENTICATION_NOT_REQUIRED = {
+        
+            "/api/admin/cardapio/categorias",
+            "/api/admin/cardapio/produtos",
+            "/api/admin/cardapio/produtos/{restauranteId}/gestão",
+            "/api/admin/pedidos/{pedidoId}",
+            "/api/admin/pedidos/{restauranteId}",
+            "/api/publico/restaurante",
+            "/api/publico/categorias",
+            "/api/publico/produtos",
+            "/api/pedidos/{restauranteId}",
+            "/api/pedidos/admin",
             "/api/auth/login",
             "/api/auth/criar-primeiro-admin",
             // 🔓 Swagger/OpenAPI UI
